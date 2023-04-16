@@ -1,0 +1,17 @@
+#!/bin/bash
+
+[[ ${#*} -lt 1 ]] &&
+  read -p "search: " query ||
+  query="${@}"
+
+[[ -n "${query}" ]] &&
+  clear && 
+  echo -e "results for \x1b[38;5;170m${query}\x1b[0m" &&
+  echo -e $(
+    curl -s https://api.dictionaryapi.dev/api/v2/entries/en/$(echo "${query}" |
+    sed -e 's: :%20:g') | 
+    jq -r '.[]|.meanings[]|"\\n\\r\\x1b[38;5;180m\(.partOfSpeech)\\x1b[0m: \(.definitions[].definition)"' 2> /dev/null || 
+    echo "no results"
+  ) &&
+  echo -e "\n\x1b[38;5;21mhttps://dictionaryapi.dev/\x1b[0m\n"
+
